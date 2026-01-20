@@ -2,10 +2,23 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Facebook, Twitter, Linkedin, Instagram } from 'lucide-react';
 import { useLenis } from '@studio-freight/react-lenis';
+import { Link, useLocation } from 'react-router-dom';
 import logo from '../assets/logo.png';
 
 const Footer = () => {
     const lenis = useLenis();
+    const location = useLocation();
+    const isHomePage = location.pathname === '/';
+
+    const handleFooterLinkClick = (e, path, hash) => {
+        if (isHomePage && hash) {
+            e.preventDefault();
+            lenis?.scrollTo(hash, { offset: -80 });
+        } else {
+            window.scrollTo(0, 0);
+        }
+    };
+
     const socialIcons = [
         { Icon: Facebook, href: '#', color: 'hover:bg-blue-600' },
         { Icon: Twitter, href: '#', color: 'hover:bg-sky-500' },
@@ -38,9 +51,10 @@ const Footer = () => {
                         viewport={{ once: true }}
                         transition={{ duration: 0.6 }}
                     >
-                        <motion.div
+                        <Link
+                            to="/"
                             className="flex items-center mb-6 group cursor-pointer"
-                            whileHover={{ scale: 1.05 }}
+                            onClick={(e) => handleFooterLinkClick(e, '/', '#home')}
                         >
                             <motion.img
                                 src={logo}
@@ -75,7 +89,7 @@ const Footer = () => {
                             <span className="text-2xl font-bold tracking-tight">
                                 Sahasya <span className="text-indigo-400">Tech</span>
                             </span>
-                        </motion.div>
+                        </Link>
                         <p className="text-slate-400 mb-8 leading-relaxed text-sm font-medium">
                             Leading the way in IT staffing, industrial manpower, and engineering innovations for the next generation of business.
                         </p>
@@ -114,7 +128,13 @@ const Footer = () => {
                     >
                         <h4 className="text-lg font-bold mb-6 text-white">Services</h4>
                         <ul className="space-y-3 text-slate-400 text-sm font-medium">
-                            {['IT Talent Solutions', 'Mechanical Support', 'Processing Plants', 'Digital Marketing', 'Agri-Innovation'].map((item, i) => (
+                            {[
+                                { name: 'IT Talent Solutions', path: '/services', hash: '#services' },
+                                { name: 'Mechanical Support', path: '/services', hash: '#services' },
+                                { name: 'Processing Plants', path: '/services', hash: '#services' },
+                                { name: 'Digital Marketing', path: '/services', hash: '#services' },
+                                { name: 'Agri-Innovation', path: '/services', hash: '#services' }
+                            ].map((item, i) => (
                                 <motion.li
                                     key={i}
                                     initial={{ opacity: 0, x: -20 }}
@@ -122,22 +142,19 @@ const Footer = () => {
                                     viewport={{ once: true }}
                                     transition={{ delay: 0.1 + i * 0.05 }}
                                 >
-                                    <a
-                                        href="#services"
+                                    <Link
+                                        to={item.path}
                                         className="hover:text-indigo-400 transition-colors inline-block group cursor-pointer relative z-50"
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            lenis?.scrollTo('#services', { offset: -80 });
-                                        }}
+                                        onClick={(e) => handleFooterLinkClick(e, item.path, item.hash)}
                                     >
                                         <motion.span
                                             whileHover={{ x: 5 }}
                                             className="flex items-center gap-2"
                                         >
                                             <motion.span className="w-0 h-0.5 bg-indigo-400 group-hover:w-4 transition-all" />
-                                            {item}
+                                            {item.name}
                                         </motion.span>
-                                    </a>
+                                    </Link>
                                 </motion.li>
                             ))}
                         </ul>
@@ -154,23 +171,28 @@ const Footer = () => {
                             {[
                                 {
                                     name: 'About Us',
-                                    href: '#about',
+                                    path: '/about',
+                                    hash: '#about'
                                 },
                                 {
                                     name: 'Use Cases',
-                                    href: '#use-cases',
+                                    path: '/',
+                                    hash: '#industry-cases'
                                 },
                                 {
                                     name: 'Careers',
-                                    href: '#',
+                                    path: '#',
+                                    hash: null
                                 },
                                 {
                                     name: 'Contact',
-                                    href: '#contact',
+                                    path: '/contact',
+                                    hash: '#contact'
                                 },
                                 {
                                     name: 'Privacy Policy',
-                                    href: '#',
+                                    path: '/privacy-policy',
+                                    hash: null
                                 },
                             ].map((item, i) => (
                                 <motion.li
@@ -180,15 +202,10 @@ const Footer = () => {
                                     viewport={{ once: true }}
                                     transition={{ delay: 0.2 + i * 0.05 }}
                                 >
-                                    <a
-                                        href={item.href}
+                                    <Link
+                                        to={item.path}
                                         className="hover:text-indigo-400 transition-colors inline-block group cursor-pointer relative z-50"
-                                        onClick={(e) => {
-                                            if (item.href.startsWith('#')) {
-                                                e.preventDefault();
-                                                lenis?.scrollTo(item.href, { offset: -80 });
-                                            }
-                                        }}
+                                        onClick={(e) => handleFooterLinkClick(e, item.path, item.hash)}
                                     >
                                         <motion.span
                                             whileHover={{ x: 5 }}
@@ -197,7 +214,7 @@ const Footer = () => {
                                             <motion.span className="w-0 h-0.5 bg-indigo-400 group-hover:w-4 transition-all" />
                                             {item.name}
                                         </motion.span>
-                                    </a>
+                                    </Link>
                                 </motion.li>
                             ))}
                         </ul>

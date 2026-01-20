@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { useLenis } from '@studio-freight/react-lenis';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import logo from '../assets/logo.png';
 
 const Navbar = ({ isPreloaderDone = false }) => {
@@ -9,6 +10,9 @@ const Navbar = ({ isPreloaderDone = false }) => {
     const [isOpen, setIsOpen] = useState(false);
     const { scrollYProgress } = useScroll();
     const lenis = useLenis();
+    const location = useLocation();
+    const navigate = useNavigate();
+    const isHomePage = location.pathname === '/';
 
     const backgroundColor = useTransform(
         scrollYProgress,
@@ -25,12 +29,23 @@ const Navbar = ({ isPreloaderDone = false }) => {
     }, []);
 
     const navLinks = [
-        { name: 'Home', href: '#home' },
-        { name: 'About', href: '#about' },
-        { name: 'Services', href: '#services' },
-        { name: 'Why Us', href: '#why-us' },
-        { name: 'Contact', href: '#contact' },
+        { name: 'Home', path: '/', hash: '#home' },
+        { name: 'About', path: '/about', hash: '#about' },
+        { name: 'Services', path: '/services', hash: '#services' },
+        { name: 'Use Cases', path: '/', hash: '#industry-cases' },
+        { name: 'Contact', path: '/contact', hash: '#contact' },
     ];
+
+    const handleNavClick = (e, link) => {
+        if (isHomePage && link.hash) {
+            e.preventDefault();
+            setIsOpen(false);
+            lenis?.scrollTo(link.hash, { offset: -80 });
+        } else {
+            setIsOpen(false);
+            window.scrollTo(0, 0);
+        }
+    };
 
     return (
         <motion.nav
@@ -40,18 +55,18 @@ const Navbar = ({ isPreloaderDone = false }) => {
         >
             <div className="max-w-7xl mx-auto px-6 md:px-8 flex justify-between items-center">
                 {/* Logo */}
-                <motion.a
-                    href="#home"
+                <Link
+                    to="/"
                     className="flex items-center gap-3 group cursor-pointer relative z-50"
                     style={{
                         opacity: isPreloaderDone ? 1 : 0,
                         pointerEvents: isPreloaderDone ? 'auto' : 'none'
                     }}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
                     onClick={(e) => {
-                        e.preventDefault();
-                        lenis?.scrollTo(0);
+                        if (isHomePage) {
+                            e.preventDefault();
+                            lenis?.scrollTo(0);
+                        }
                     }}
                 >
                     <motion.div
@@ -67,37 +82,30 @@ const Navbar = ({ isPreloaderDone = false }) => {
                             Sahasya <span className="text-indigo-600">Tech</span>
                         </span>
                     </motion.div>
-                </motion.a>
+                </Link>
 
                 {/* Desktop Menu */}
                 <div className="hidden md:flex items-center gap-8 relative z-50">
                     {navLinks.map((link) => (
-                        <motion.a
-                            key={link.name}
-                            href={link.href}
-                            className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors cursor-pointer relative z-50"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={(e) => {
-                                e.preventDefault();
-                                lenis?.scrollTo(link.href, { offset: -80 });
-                            }}
-                        >
-                            {link.name}
-                        </motion.a>
+                        <motion.div key={link.name} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                            <Link
+                                to={link.path}
+                                className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors cursor-pointer relative z-50"
+                                onClick={(e) => handleNavClick(e, link)}
+                            >
+                                {link.name}
+                            </Link>
+                        </motion.div>
                     ))}
-                    <motion.a
-                        href="#contact"
-                        className="px-6 py-2.5 rounded-full bg-slate-900 text-white font-semibold text-sm hover:bg-slate-800 transition-colors cursor-pointer relative z-50"
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={(e) => {
-                            e.preventDefault();
-                            lenis?.scrollTo('#contact', { offset: -80 });
-                        }}
-                    >
-                        Get Started
-                    </motion.a>
+                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                        <Link
+                            to="/contact"
+                            className="px-6 py-2.5 rounded-full bg-slate-900 text-white font-semibold text-sm hover:bg-slate-800 transition-colors cursor-pointer relative z-50"
+                            onClick={(e) => handleNavClick(e, { path: '/contact', hash: '#contact' })}
+                        >
+                            Get Started
+                        </Link>
+                    </motion.div>
                 </div>
 
                 {/* Mobile Menu Button */}
@@ -120,34 +128,22 @@ const Navbar = ({ isPreloaderDone = false }) => {
                     >
                         <div className="px-6 py-6 flex flex-col gap-4 relative z-50">
                             {navLinks.map((link) => (
-                                <a
+                                <Link
                                     key={link.name}
-                                    href={link.href}
+                                    to={link.path}
                                     className="text-base font-medium text-slate-600 hover:text-slate-900 cursor-pointer relative z-50 py-2 block"
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        setIsOpen(false);
-                                        setTimeout(() => {
-                                            lenis?.scrollTo(link.href, { offset: -80 });
-                                        }, 100);
-                                    }}
+                                    onClick={(e) => handleNavClick(e, link)}
                                 >
                                     {link.name}
-                                </a>
+                                </Link>
                             ))}
-                            <a
-                                href="#contact"
+                            <Link
+                                to="/contact"
                                 className="px-6 py-3 rounded-full bg-slate-900 text-white font-semibold text-center mt-2 cursor-pointer relative z-50 block"
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    setIsOpen(false);
-                                    setTimeout(() => {
-                                        lenis?.scrollTo('#contact', { offset: -80 });
-                                    }, 100);
-                                }}
+                                onClick={(e) => handleNavClick(e, { path: '/contact', hash: '#contact' })}
                             >
                                 Get Started
-                            </a>
+                            </Link>
                         </div>
                     </motion.div>
                 )}
