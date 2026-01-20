@@ -1,0 +1,14 @@
+[build]
+  # The directory where the build command should run
+  base = "frontend"
+  
+  # The directory that contains the deploy-ready assets
+  publish = "dist"
+  
+  # The command to run to build your project
+  command = "npm run build"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
