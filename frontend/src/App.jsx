@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { HelmetProvider } from 'react-helmet-async';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -22,22 +22,28 @@ function App() {
       setIsLoading(false);
       setIsPreloaderDone(true);
     } else {
-      const timer = setTimeout(() => setIsLoading(false), 2700);
+      // In case Preloader fails to call completion
+      const timer = setTimeout(() => setIsLoading(false), 4000);
       return () => clearTimeout(timer);
     }
   }, []);
 
-  const handlePreloaderComplete = () => {
+  const handlePreloaderComplete = useCallback(() => {
     setIsLoading(false);
     sessionStorage.setItem('hasSeenPreloader', 'true');
     // Delay to ensure Preloader layoutId is removed before Navbar uses it
     setTimeout(() => setIsPreloaderDone(true), 200);
-  };
+  }, []);
 
   return (
     <HelmetProvider>
       <Router>
-        <Preloader onComplete={handlePreloaderComplete} />
+        <AnimatePresence mode="wait">
+          {!isPreloaderDone && (
+            <Preloader key="main-preloader" onComplete={handlePreloaderComplete} />
+          )}
+        </AnimatePresence>
+
         <SmoothScroll>
           <motion.div
             className="min-h-screen bg-background text-foreground overflow-hidden"
@@ -62,5 +68,6 @@ function App() {
     </HelmetProvider>
   );
 }
+
 
 export default App;
